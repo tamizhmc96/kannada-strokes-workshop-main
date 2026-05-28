@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(Get-ChildItem -Recurse \"C:\\\\Users\\\\gouri\\\\OneDrive\\\\Documents\\\\website_kannada\\\\kannada-strokes-workshop-main\")",
+      "Bash(Select-Object FullName, Length)",
+      "Bash(Format-Table -AutoSize)",
+      "PowerShell(Get-ChildItem -Recurse \"C:\\\\Users\\\\gouri\\\\OneDrive\\\\Documents\\\\website_kannada\\\\kannada-strokes-workshop-main\" | Where-Object { !$_.PSIsContainer } | Select-Object FullName)",
+      "PowerShell(bun --version)",
+      "PowerShell($env:PATH += \";$env:USERPROFILE\\\\.bun\\\\bin\"; cd \"C:\\\\Users\\\\gouri\\\\OneDrive\\\\Documents\\\\website_kannada\\\\kannada-strokes-workshop-main\"; bun install 2>&1 | Select-Object -Last 5)",
+      "PowerShell($env:PATH += \";$env:USERPROFILE\\\\.bun\\\\bin\"; cd \"C:\\\\Users\\\\gouri\\\\OneDrive\\\\Documents\\\\website_kannada\\\\kannada-strokes-workshop-main\"; bun run dev)",
+      "PowerShell(Get-NetTCPConnection -LocalPort 8080,8081,8082,8083 -State Listen -ErrorAction SilentlyContinue | ForEach-Object { Stop-Process -Id $_.OwningProcess -Force -ErrorAction SilentlyContinue }; Write-Output \"Done\")"
+    ]
+  }
+}
