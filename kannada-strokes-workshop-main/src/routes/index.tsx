@@ -3,8 +3,6 @@ import { useState } from "react";
 import logo from "@/assets/logo.jpg";
 import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
-import { createRazorpayOrder, verifyRazorpayPayment } from "@/lib/razorpay-server";
-
 const RAZORPAY_KEY_ID = "rzp_test_Sq1SeyY1w1qQKJ";
 const AMOUNT_INR = 2200;
 
@@ -91,7 +89,14 @@ function LandingPage() {
 
     setLoading(true);
     try {
-      const { orderId } = await createRazorpayOrder({ data: { amount: AMOUNT_INR } });
+      const { orderId } = await fetch("/api/create-order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ amount: AMOUNT_INR }),
+      }).then((r) => {
+        if (!r.ok) throw new Error("Failed to create order");
+        return r.json();
+      });
 
       const options = {
         key: RAZORPAY_KEY_ID,
@@ -111,13 +116,19 @@ function LandingPage() {
           razorpay_signature: string;
         }) {
           try {
-            await verifyRazorpayPayment({
-              data: {
+            const verification = await fetch("/api/verify-payment", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
                 orderId: response.razorpay_order_id,
                 paymentId: response.razorpay_payment_id,
                 signature: response.razorpay_signature,
-              },
+              }),
+            }).then((r) => {
+              if (!r.ok) throw new Error("Verification request failed");
+              return r.json();
             });
+            if (!verification.verified) throw new Error("Payment signature invalid");
             sessionStorage.setItem("rzp_name", form.name);
             sessionStorage.setItem("rzp_email", form.email);
             sessionStorage.setItem("rzp_phone", form.phone);
