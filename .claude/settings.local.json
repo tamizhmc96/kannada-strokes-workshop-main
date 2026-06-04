@@ -3,7 +3,9 @@
     "allow": [
       "Bash(git clone *)",
       "Bash(git add *)",
-      "Bash(git commit -m ' *)"
+      "Bash(git commit -m ' *)",
+      "Bash(git commit -m 'fix: set explicit Vite build config in vercel.json *)",
+      "Bash(git commit -m 'fix: explicitly set npm install command in vercel.json *)"
     ]
   }
 }
