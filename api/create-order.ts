@@ -1,7 +1,5 @@
 import { createHmac } from "crypto";
 
-const RAZORPAY_KEY_ID = "rzp_test_Sq1SeyY1w1qQKJ";
-
 export default async function handler(req: any, res: any) {
   if (req.method !== "POST") {
     res.status(405).end();
@@ -9,7 +7,8 @@ export default async function handler(req: any, res: any) {
   }
 
   const secret = process.env.RAZORPAY_KEY_SECRET;
-  if (!secret) {
+  const keyId = process.env.RAZORPAY_KEY_ID;
+  if (!secret || !keyId) {
     res.status(500).json({ error: "Server misconfiguration" });
     return;
   }
@@ -24,7 +23,7 @@ export default async function handler(req: any, res: any) {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Basic ${Buffer.from(`${RAZORPAY_KEY_ID}:${secret}`).toString("base64")}`,
+      Authorization: `Basic ${Buffer.from(`${keyId}:${secret}`).toString("base64")}`,
     },
     body: JSON.stringify({
       amount: amount * 100,

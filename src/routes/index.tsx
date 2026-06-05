@@ -3,7 +3,7 @@ import { useState } from "react";
 import logo from "@/assets/logo.jpg";
 import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
-const RAZORPAY_KEY_ID = "rzp_test_Sq1SeyY1w1qQKJ";
+const RAZORPAY_KEY_ID = (import.meta.env.VITE_RAZORPAY_KEY_ID as string) ?? "";
 const AMOUNT_INR = 2200;
 
 export const Route = createFileRoute("/")({

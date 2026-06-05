@@ -1,6 +1,10 @@
 import { createServerFn } from "@tanstack/react-start";
 
-const RAZORPAY_KEY_ID = "rzp_test_Sq1SeyY1w1qQKJ";
+function getKeyId(): string {
+  const id = process.env.RAZORPAY_KEY_ID;
+  if (!id) throw new Error("RAZORPAY_KEY_ID env var is not set");
+  return id;
+}
 
 function getKeySecret(): string {
   const s = process.env.RAZORPAY_KEY_SECRET;
@@ -27,11 +31,12 @@ export const createRazorpayOrder = createServerFn({ method: "POST" })
   .inputValidator((d: { amount: number }) => d)
   .handler(async ({ data }) => {
     const secret = getKeySecret();
+    const keyId = getKeyId();
     const res = await fetch("https://api.razorpay.com/v1/orders", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Basic ${btoa(`${RAZORPAY_KEY_ID}:${secret}`)}`,
+        Authorization: `Basic ${btoa(`${keyId}:${secret}`)}`,
       },
       body: JSON.stringify({
         amount: data.amount * 100,
