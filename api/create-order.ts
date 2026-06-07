@@ -1,4 +1,6 @@
-import { createHmac } from "crypto";
+// The workshop fee is fixed and authoritative on the server.
+// Never trust an amount sent by the browser — that lets a user pay ₹1.
+const WORKSHOP_AMOUNT_INR = 2200;
 
 export default async function handler(req: any, res: any) {
   if (req.method !== "POST") {
@@ -13,12 +15,6 @@ export default async function handler(req: any, res: any) {
     return;
   }
 
-  const { amount } = req.body;
-  if (!amount || typeof amount !== "number") {
-    res.status(400).json({ error: "Invalid amount" });
-    return;
-  }
-
   const response = await fetch("https://api.razorpay.com/v1/orders", {
     method: "POST",
     headers: {
@@ -26,7 +22,7 @@ export default async function handler(req: any, res: any) {
       Authorization: `Basic ${Buffer.from(`${keyId}:${secret}`).toString("base64")}`,
     },
     body: JSON.stringify({
-      amount: amount * 100,
+      amount: WORKSHOP_AMOUNT_INR * 100,
       currency: "INR",
       receipt: `rcpt_${Date.now()}`,
     }),

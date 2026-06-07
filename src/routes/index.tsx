@@ -279,11 +279,17 @@ function LandingPage() {
 
       <footer className="border-t border-primary/10 py-6 text-center text-xs text-foreground/60">
         <p>© {new Date().getFullYear()} The Lettering Lab · "The Art of Letters"</p>
-        <p className="mt-1 space-x-3">
-          <span>Privacy</span>
+        <nav className="mt-2 flex flex-wrap items-center justify-center gap-x-3 gap-y-1">
+          <a href="/terms" className="hover:text-primary hover:underline">Terms</a>
           <span>·</span>
-          <span>Terms</span>
-        </p>
+          <a href="/privacy" className="hover:text-primary hover:underline">Privacy</a>
+          <span>·</span>
+          <a href="/refund" className="hover:text-primary hover:underline">Refund</a>
+          <span>·</span>
+          <a href="/shipping" className="hover:text-primary hover:underline">Shipping</a>
+          <span>·</span>
+          <a href="/contact" className="hover:text-primary hover:underline">Contact</a>
+        </nav>
       </footer>
     </div>
   );
