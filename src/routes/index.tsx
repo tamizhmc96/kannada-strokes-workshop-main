@@ -4,7 +4,7 @@ import logo from "@/assets/logo.jpg";
 import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
 const RAZORPAY_KEY_ID = (import.meta.env.VITE_RAZORPAY_KEY_ID as string) ?? "";
-const AMOUNT_INR = 2200;
+const AMOUNT_INR = 10;
 
 export const Route = createFileRoute("/")({
   head: () => ({

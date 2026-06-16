@@ -1,6 +1,6 @@
 // The workshop fee is fixed and authoritative on the server.
 // Never trust an amount sent by the browser — that lets a user pay ₹1.
-const WORKSHOP_AMOUNT_INR = 2200;
+const WORKSHOP_AMOUNT_INR = 10;
 
 export default async function handler(req: any, res: any) {
   if (req.method !== "POST") {

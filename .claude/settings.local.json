@@ -8,7 +8,10 @@
       "Bash(git commit -m 'fix: explicitly set npm install command in vercel.json *)",
       "Bash(git commit -m 'refactor: move project files to repo root for Vercel auto-deploy *)",
       "Bash(npm run *)",
-      "Bash(git ls-tree *)"
+      "Bash(git ls-tree *)",
+      "Bash(git commit -m 'feat: add Terms/Privacy/Refund/Shipping/Contact pages; enforce server-side price *)",
+      "Bash(git push *)",
+      "Bash(git check-ignore *)"
     ]
   }
 }
