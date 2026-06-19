@@ -1,5 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { BUSINESS, PolicyHeading, PolicyPage } from "@/components/policy-page";
+import { useSiteContent } from "@/lib/content";
+import { formatDateRange } from "@/lib/content-schema";
 
 export const Route = createFileRoute("/terms")({
   head: () => ({
@@ -9,6 +11,7 @@ export const Route = createFileRoute("/terms")({
 });
 
 function TermsPage() {
+  const content = useSiteContent();
   return (
     <PolicyPage title="Terms & Conditions">
       <p>
@@ -20,9 +23,9 @@ function TermsPage() {
 
       <PolicyHeading>1. The Workshop</PolicyHeading>
       <p>
-        The Workshop is a 12-day online Kannada calligraphy program conducted from 15th to 26th
-        December 2025 across three batch timings. It includes live online sessions, physical
-        practice materials delivered to your address, and a certificate of completion.
+        The Workshop is an online Kannada calligraphy program conducted from {formatDateRange(content)}{" "}
+        across multiple batch timings. It includes live online sessions, physical practice materials
+        delivered to your address, and a certificate of completion.
       </p>
 
       <PolicyHeading>2. Eligibility</PolicyHeading>
@@ -33,7 +36,7 @@ function TermsPage() {
 
       <PolicyHeading>3. Fees &amp; Payment</PolicyHeading>
       <p>
-        The Workshop fee is ₹2,200 (Indian Rupees), inclusive of materials and certificate. All
+        The Workshop fee is ₹{content.priceInr.toLocaleString("en-IN")} (Indian Rupees), inclusive of materials and certificate. All
         payments are processed securely through Razorpay. Your seat is confirmed only after
         successful payment. We do not store your card, UPI, or bank credentials.
       </p>

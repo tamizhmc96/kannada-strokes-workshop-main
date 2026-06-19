@@ -2,6 +2,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { jsPDF } from "jspdf";
 import logo from "@/assets/logo.jpg";
+import { useSiteContent } from "@/lib/content";
+import { durationDays, formatDateRange, formatStartDay } from "@/lib/content-schema";
 
 export const Route = createFileRoute("/success")({
   head: () => ({
@@ -16,17 +18,8 @@ export const Route = createFileRoute("/success")({
   component: SuccessPage,
 });
 
-type BatchInfo = { label: string; time: string };
-
-const BATCH_INFO: Record<string, BatchInfo> = {
-  noon: { label: "Noon Batch", time: "2:00 PM – 3:00 PM IST" },
-  evening: { label: "Evening Batch", time: "5:00 PM – 6:00 PM IST" },
-  night: { label: "Night Batch", time: "9:00 PM – 10:00 PM IST" },
-};
-
-const WORKSHOP_DATES = "15th – 26th December 2025 (12 Days)";
-
 function SuccessPage() {
+  const content = useSiteContent();
   const search = Route.useSearch() as {
     payment_id?: string;
     batch?: string;
@@ -35,8 +28,10 @@ function SuccessPage() {
 
   const paymentId = search.payment_id ?? "N/A";
   const batchKey = search.batch ?? "";
-  const batch = BATCH_INFO[batchKey] ?? { label: batchKey || "N/A", time: "—" };
-  const amount = search.amount ?? "2200";
+  const batchLabel = content.batches.find((b) => b.value === batchKey)?.label ?? (batchKey || "N/A");
+  const amount = search.amount ?? String(content.priceInr);
+  const workshopDates = `${formatDateRange(content)} (${durationDays(content)} Days)`;
+  const startDay = formatStartDay(content);
 
   const [name, setName] = useState("—");
   const [email, setEmail] = useState("—");
@@ -75,12 +70,12 @@ function SuccessPage() {
     doc.setTextColor(20, 20, 20);
     doc.setFont("helvetica", "bold");
     doc.setFontSize(16);
-    doc.text("12-Day Kannada Calligraphy Workshop", 40, y);
+    doc.text(content.title, 40, y);
     y += 18;
     doc.setFont("helvetica", "normal");
     doc.setFontSize(11);
     doc.setTextColor(90, 90, 90);
-    doc.text(`Workshop Dates: ${WORKSHOP_DATES}`, 40, y);
+    doc.text(`Workshop Dates: ${workshopDates}`, 40, y);
     y += 14;
     doc.text(`Receipt issued: ${issuedAt}`, 40, y);
 
@@ -106,7 +101,7 @@ function SuccessPage() {
     row("Name", name);
     row("Email", email);
     row("Phone", phone);
-    row("Selected Batch", `${batch.label} · ${batch.time}`);
+    row("Selected Batch", batchLabel);
     row("Amount Paid", `INR ${amount}.00`);
     row("Status", "Paid · Confirmed");
 
@@ -125,7 +120,7 @@ function SuccessPage() {
     doc.setTextColor(60, 60, 60);
     const notes = [
       "• Workshop materials will be shipped to your address.",
-      "• Joining link for your batch will be emailed before 15 Dec 2025.",
+      `• Joining link for your batch will be emailed before ${startDay}.`,
       "• Certificate of completion will be issued at the end of the workshop.",
       "• For queries, reply to the confirmation email.",
     ];
@@ -170,16 +165,10 @@ function SuccessPage() {
             <p className="text-xs font-semibold uppercase tracking-wider text-primary/70">
               Your Batch
             </p>
-            <p className="mt-2 text-xl font-bold text-primary">{batch.label}</p>
-            <div className="mt-3 grid gap-2 text-sm text-foreground/80 sm:grid-cols-2">
-              <div>
-                <span className="block text-xs uppercase text-muted-foreground">Timing</span>
-                <span className="font-medium">{batch.time}</span>
-              </div>
-              <div>
-                <span className="block text-xs uppercase text-muted-foreground">Dates</span>
-                <span className="font-medium">{WORKSHOP_DATES}</span>
-              </div>
+            <p className="mt-2 text-xl font-bold text-primary">{batchLabel}</p>
+            <div className="mt-3 text-sm text-foreground/80">
+              <span className="block text-xs uppercase text-muted-foreground">Dates</span>
+              <span className="font-medium">{workshopDates}</span>
             </div>
           </div>
 
@@ -216,7 +205,7 @@ function SuccessPage() {
           </div>
 
           <p className="mt-6 text-xs text-foreground/60">
-            Materials will be shipped to your address. A joining link for {batch.label.toLowerCase()} will be emailed before 15 Dec 2025.
+            Materials will be shipped to your address. A joining link for {batchLabel.toLowerCase()} will be emailed before {startDay}.
           </p>
         </div>
       </main>

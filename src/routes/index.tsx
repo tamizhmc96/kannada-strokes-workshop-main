@@ -3,26 +3,25 @@ import { useState } from "react";
 import logo from "@/assets/logo.jpg";
 import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
+import { SITE_CONTENT, useSiteContent } from "@/lib/content";
+import { formatDateRange, formatDateRangeShort } from "@/lib/content-schema";
 const RAZORPAY_KEY_ID = (import.meta.env.VITE_RAZORPAY_KEY_ID as string) ?? "";
-const AMOUNT_INR = 10;
 
 export const Route = createFileRoute("/")({
-  head: () => ({
-    meta: [
-      { title: "12-Day Kannada Calligraphy Workshop — The Lettering Lab" },
-      {
-        name: "description",
-        content:
-          "Join The Lettering Lab's 12-day online Kannada Calligraphy Workshop (Dec 15–26, 2025). Three flexible batches. ₹2200. Materials delivered. Certificate included.",
-      },
-      { property: "og:title", content: "12-Day Kannada Calligraphy Workshop" },
-      {
-        property: "og:description",
-        content:
-          "Dive into the art of Kannada calligraphy with The Lettering Lab. 12 days online. ₹2200.",
-      },
-    ],
-  }),
+  head: () => {
+    const c = SITE_CONTENT;
+    return {
+      meta: [
+        { title: `${c.title} — The Lettering Lab` },
+        {
+          name: "description",
+          content: `Join The Lettering Lab's online Kannada Calligraphy Workshop (${formatDateRangeShort(c)}). ₹${c.priceInr}. Materials delivered. Certificate included.`,
+        },
+        { property: "og:title", content: c.title },
+        { property: "og:description", content: c.heroIntro },
+      ],
+    };
+  },
   component: LandingPage,
 });
 
@@ -52,14 +51,10 @@ const initialForm: FormState = {
   email: "",
 };
 
-const BATCHES = [
-  { value: "noon", label: "Noon Batch · 2:00 PM – 3:00 PM" },
-  { value: "evening", label: "Evening Batch · 5:00 PM – 6:00 PM" },
-  { value: "night", label: "Night Batch · 9:00 PM – 10:00 PM" },
-];
 
 function LandingPage() {
   const navigate = useNavigate();
+  const content = useSiteContent();
   const [form, setForm] = useState<FormState>(initialForm);
   const [loading, setLoading] = useState(false);
 
@@ -89,22 +84,24 @@ function LandingPage() {
 
     setLoading(true);
     try {
-      const { orderId } = await fetch("/api/create-order", {
+      // The server is authoritative on price; it returns the amount it charged.
+      const { orderId, amount } = await fetch("/api/create-order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ amount: AMOUNT_INR }),
+        body: JSON.stringify({}),
       }).then((r) => {
         if (!r.ok) throw new Error("Failed to create order");
         return r.json();
       });
+      const chargedInr = typeof amount === "number" ? amount : content.priceInr;
 
       const options = {
         key: RAZORPAY_KEY_ID,
-        amount: AMOUNT_INR * 100,
+        amount: chargedInr * 100,
         currency: "INR",
         order_id: orderId,
         name: "The Lettering Lab",
-        description: "12-Day Kannada Calligraphy Workshop",
+        description: content.title,
         image: logo,
         prefill: { name: form.name, email: form.email, contact: form.phone },
         notes: { batch: form.batch, age: form.age, address: form.address, pincode: form.pincode },
@@ -137,7 +134,7 @@ function LandingPage() {
               search: {
                 payment_id: response.razorpay_payment_id,
                 batch: form.batch,
-                amount: String(AMOUNT_INR),
+                amount: String(chargedInr),
               },
             });
           } catch {
@@ -175,20 +172,17 @@ function LandingPage() {
 
       {/* Hero */}
       <section className="mx-auto max-w-3xl px-6 pt-4 pb-10 text-center">
-        <p className="font-script text-3xl text-primary">The Art of Letters</p>
+        <p className="font-script text-3xl text-primary">{content.tagline}</p>
         <h1 className="mt-3 text-4xl font-bold leading-tight text-primary sm:text-5xl">
-          12-Day Kannada Calligraphy Workshop
+          {content.title}
         </h1>
-        <p className="mt-3 text-base text-primary/70">Online · 15th – 26th December 2025</p>
-        <p className="mt-5 text-lg text-foreground/80">
-          Dive into the art of Kannada calligraphy and unlock the beauty of the script like never before.
-          An immersive 12-day journey with The Lettering Lab.
-        </p>
+        <p className="mt-3 text-base text-primary/70">Online · {formatDateRange(content)}</p>
+        <p className="mt-5 text-lg text-foreground/80">{content.heroIntro}</p>
         <a
           href="#register"
           className="mt-7 inline-block rounded-full bg-primary px-8 py-3 text-base font-semibold text-primary-foreground shadow-md transition hover:opacity-90"
         >
-          Reserve Your Seat · ₹{AMOUNT_INR}
+          Reserve Your Seat · ₹{content.priceInr}
         </a>
       </section>
 
@@ -196,11 +190,13 @@ function LandingPage() {
       <section className="mx-auto grid max-w-5xl gap-6 px-6 pb-10 md:grid-cols-2">
         <div className="rounded-2xl border border-primary/10 bg-card p-7 shadow-sm">
           <h2 className="text-2xl font-bold text-primary">Choose Your Batch</h2>
-          <p className="mt-1 text-sm text-foreground/70">Three flexible online batches to fit your day.</p>
+          <p className="mt-1 text-sm text-foreground/70">Flexible online batches to fit your day.</p>
           <ul className="mt-5 space-y-3 text-foreground/90">
-            <li className="flex items-start gap-3"><span className="mt-1 h-2 w-2 rounded-full bg-primary" /> Noon Batch · 2:00 PM – 3:00 PM</li>
-            <li className="flex items-start gap-3"><span className="mt-1 h-2 w-2 rounded-full bg-primary" /> Evening Batch · 5:00 PM – 6:00 PM</li>
-            <li className="flex items-start gap-3"><span className="mt-1 h-2 w-2 rounded-full bg-primary" /> Night Batch · 9:00 PM – 10:00 PM</li>
+            {content.batches.map((b) => (
+              <li key={b.value} className="flex items-start gap-3">
+                <span className="mt-1 h-2 w-2 rounded-full bg-primary" /> {b.label}
+              </li>
+            ))}
           </ul>
           <p className="mt-5 text-sm text-foreground/70">Age 8 years and above can join.</p>
         </div>
@@ -208,11 +204,9 @@ function LandingPage() {
         <div className="rounded-2xl border border-primary/10 bg-card p-7 shadow-sm">
           <h2 className="text-2xl font-bold text-primary">What You'll Learn</h2>
           <ul className="mt-5 space-y-2 text-foreground/90">
-            <li>• Basic Strokes</li>
-            <li>• ಸ್ವರಗಳು (Swara)</li>
-            <li>• ವ್ಯಂಜನಗಳು (Vanjanas)</li>
-            <li>• Word Formation</li>
-            <li>• Quote Composition</li>
+            {content.learn.map((item, i) => (
+              <li key={i}>• {item}</li>
+            ))}
           </ul>
           <div className="mt-6 space-y-2 text-sm text-foreground/80">
             <p>✓ Materials delivered to your doorstep</p>
@@ -256,7 +250,7 @@ function LandingPage() {
                 className="w-full rounded-lg border border-primary/20 bg-background px-3 py-2 text-foreground outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
               >
                 <option value="">Select a batch…</option>
-                {BATCHES.map((b) => (
+                {content.batches.map((b) => (
                   <option key={b.value} value={b.value}>{b.label}</option>
                 ))}
               </select>
@@ -267,7 +261,7 @@ function LandingPage() {
               disabled={loading}
               className="mt-2 w-full rounded-full bg-primary py-3.5 text-base font-semibold text-primary-foreground shadow-md transition hover:opacity-90 disabled:opacity-60"
             >
-              {loading ? "Processing…" : `Buy now · ₹${AMOUNT_INR}`}
+              {loading ? "Processing…" : `Buy now · ₹${content.priceInr}`}
             </button>
 
             <p className="pt-2 text-center text-xs text-foreground/60">

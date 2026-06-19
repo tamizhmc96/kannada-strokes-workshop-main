@@ -1,6 +1,9 @@
-// The workshop fee is fixed and authoritative on the server.
-// Never trust an amount sent by the browser — that lets a user pay ₹1.
-const WORKSHOP_AMOUNT_INR = 10;
+import contentData from "../src/content.json";
+import { mergeContent } from "../src/lib/content-schema";
+
+// The workshop fee is authoritative on the server — read from the bundled
+// content.json (admin-editable, redeployed on save), never from the browser.
+// That prevents a user from tampering the amount they pay.
 
 export default async function handler(req: any, res: any) {
   if (req.method !== "POST") {
@@ -15,6 +18,8 @@ export default async function handler(req: any, res: any) {
     return;
   }
 
+  const amountInr = mergeContent(contentData).priceInr;
+
   const response = await fetch("https://api.razorpay.com/v1/orders", {
     method: "POST",
     headers: {
@@ -22,7 +27,7 @@ export default async function handler(req: any, res: any) {
       Authorization: `Basic ${Buffer.from(`${keyId}:${secret}`).toString("base64")}`,
     },
     body: JSON.stringify({
-      amount: WORKSHOP_AMOUNT_INR * 100,
+      amount: amountInr * 100,
       currency: "INR",
       receipt: `rcpt_${Date.now()}`,
     }),
@@ -34,5 +39,5 @@ export default async function handler(req: any, res: any) {
   }
 
   const order = await response.json();
-  res.json({ orderId: order.id });
+  res.json({ orderId: order.id, amount: amountInr });
 }

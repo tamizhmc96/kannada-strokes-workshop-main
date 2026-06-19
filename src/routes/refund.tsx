@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { BUSINESS, PolicyHeading, PolicyPage } from "@/components/policy-page";
+import { useSiteContent } from "@/lib/content";
 
 export const Route = createFileRoute("/refund")({
   head: () => ({
@@ -9,6 +10,7 @@ export const Route = createFileRoute("/refund")({
 });
 
 function RefundPage() {
+  const content = useSiteContent();
   return (
     <PolicyPage title="Refund & Cancellation Policy">
       <p>
@@ -19,7 +21,7 @@ function RefundPage() {
       <PolicyHeading>Fees Are Non-Refundable</PolicyHeading>
       <p>
         Because each registration reserves a limited seat and we dispatch physical practice
-        materials ahead of the Workshop, the Workshop fee of ₹2,200 is{" "}
+        materials ahead of the Workshop, the Workshop fee of ₹{content.priceInr.toLocaleString("en-IN")} is{" "}
         <strong>non-refundable</strong> once your registration is confirmed. This includes, but is
         not limited to, change of mind, inability to attend, missed sessions, or partial attendance.
       </p>

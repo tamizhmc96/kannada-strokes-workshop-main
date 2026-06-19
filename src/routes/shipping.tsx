@@ -1,5 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { BUSINESS, PolicyHeading, PolicyPage } from "@/components/policy-page";
+import { useSiteContent } from "@/lib/content";
+import { formatStartDayLong } from "@/lib/content-schema";
 
 export const Route = createFileRoute("/shipping")({
   head: () => ({
@@ -9,6 +11,7 @@ export const Route = createFileRoute("/shipping")({
 });
 
 function ShippingPage() {
+  const content = useSiteContent();
   return (
     <PolicyPage title="Shipping & Delivery Policy">
       <p>
@@ -27,10 +30,10 @@ function ShippingPage() {
 
       <PolicyHeading>Dispatch &amp; Delivery Timeline</PolicyHeading>
       <p>
-        Materials are dispatched in time to reach you before the Workshop begins on 15 December
-        2025. Orders are typically processed within a few working days of registration and sent via
-        a third-party courier service. Delivery timelines may vary based on your location and the
-        courier.
+        Materials are dispatched in time to reach you before the Workshop begins on{" "}
+        {formatStartDayLong(content)}. Orders are typically processed within a few working days of
+        registration and sent via a third-party courier service. Delivery timelines may vary based
+        on your location and the courier.
       </p>
 
       <PolicyHeading>Accurate Address</PolicyHeading>
