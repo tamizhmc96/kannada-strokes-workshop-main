@@ -1,9 +1,28 @@
-import contentData from "../src/content.json";
-import { mergeContent } from "../src/lib/content-schema";
+// Self-contained on purpose: a Vercel serverless function must not import from
+// ../src — those imports fail to resolve at runtime and crash the function
+// (FUNCTION_INVOCATION_FAILED). The authoritative price is read from content.json
+// on GitHub (admin-editable, public repo) with a safe fallback.
 
-// The workshop fee is authoritative on the server — read from the bundled
-// content.json (admin-editable, redeployed on save), never from the browser.
-// That prevents a user from tampering the amount they pay.
+const OWNER = process.env.GITHUB_OWNER || "tamizhmc96";
+const REPO = process.env.GITHUB_REPO || "kannada-strokes-workshop-main";
+const BRANCH = process.env.GITHUB_BRANCH || "main";
+const CONTENT_PATH = process.env.CONTENT_PATH || "src/content.json";
+const FALLBACK_PRICE_INR = 2200;
+
+async function getPriceInr(): Promise<number> {
+  try {
+    const url = `https://raw.githubusercontent.com/${OWNER}/${REPO}/${BRANCH}/${CONTENT_PATH}`;
+    const r = await fetch(url, { headers: { "cache-control": "no-cache" } });
+    if (r.ok) {
+      const data: any = await r.json();
+      const p = data?.priceInr;
+      if (typeof p === "number" && Number.isFinite(p) && p > 0) return Math.round(p);
+    }
+  } catch {
+    /* fall through to fallback */
+  }
+  return FALLBACK_PRICE_INR;
+}
 
 export default async function handler(req: any, res: any) {
   if (req.method !== "POST") {
@@ -18,7 +37,7 @@ export default async function handler(req: any, res: any) {
     return;
   }
 
-  const amountInr = mergeContent(contentData).priceInr;
+  const amountInr = await getPriceInr();
 
   const response = await fetch("https://api.razorpay.com/v1/orders", {
     method: "POST",

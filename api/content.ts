@@ -1,13 +1,50 @@
-import { mergeContent, type SiteContent } from "../src/lib/content-schema";
+// Self-contained on purpose: no imports from ../src (those crash the Vercel
+// function at runtime). Validation is inlined. Saving commits content.json back
+// to GitHub, which triggers a redeploy. The JSON file is the store — no DB.
 
-// Where the editable content lives in the repo. Saving commits this file via the
-// GitHub API, which triggers a Vercel redeploy. The JSON file IS the store — no DB.
 const OWNER = process.env.GITHUB_OWNER || "tamizhmc96";
 const REPO = process.env.GITHUB_REPO || "kannada-strokes-workshop-main";
 const BRANCH = process.env.GITHUB_BRANCH || "main";
 const FILE_PATH = process.env.CONTENT_PATH || "src/content.json";
 
-function passwordOk(supplied: unknown): boolean {
+const DEFAULT_BATCHES = [
+  { value: "noon", label: "Noon Batch · 2:00 PM – 3:00 PM" },
+  { value: "evening", label: "Evening Batch · 5:00 PM – 6:00 PM" },
+  { value: "night", label: "Night Batch · 9:00 PM – 10:00 PM" },
+];
+const DEFAULT_LEARN = ["Basic Strokes", "Swara", "Vanjanas", "Word Formation", "Quote Composition"];
+
+function str(v: any, fb: string): string {
+  return typeof v === "string" && v.trim() ? v : fb;
+}
+
+// Coerce/validate the incoming content so we never commit garbage to the repo.
+function sanitize(input: any) {
+  const p = input ?? {};
+  const batches = Array.isArray(p.batches)
+    ? p.batches
+        .filter((b: any) => b && typeof b.value === "string" && typeof b.label === "string" && b.label.trim())
+        .slice(0, 10)
+    : [];
+  const learn = Array.isArray(p.learn)
+    ? p.learn.filter((s: any) => typeof s === "string" && s.trim()).slice(0, 30)
+    : [];
+  return {
+    title: str(p.title, "12-Day Kannada Calligraphy Workshop"),
+    startDate: /^\d{4}-\d{2}-\d{2}$/.test(p.startDate) ? p.startDate : "2025-12-15",
+    endDate: /^\d{4}-\d{2}-\d{2}$/.test(p.endDate) ? p.endDate : "2025-12-26",
+    priceInr:
+      typeof p.priceInr === "number" && Number.isFinite(p.priceInr) && p.priceInr > 0
+        ? Math.round(p.priceInr)
+        : 2200,
+    tagline: str(p.tagline, "The Art of Letters"),
+    heroIntro: str(p.heroIntro, "An immersive journey with The Lettering Lab."),
+    batches: batches.length ? batches : DEFAULT_BATCHES,
+    learn: learn.length ? learn : DEFAULT_LEARN,
+  };
+}
+
+function passwordOk(supplied: any): boolean {
   const expected = process.env.ADMIN_PASSWORD ?? "";
   if (!expected || typeof supplied !== "string") return false;
   if (supplied.length !== expected.length) return false;
@@ -20,7 +57,7 @@ function ghConfigured(): boolean {
   return !!process.env.GITHUB_TOKEN;
 }
 
-async function commitContent(content: SiteContent): Promise<void> {
+async function commitContent(content: any): Promise<void> {
   const token = process.env.GITHUB_TOKEN;
   if (!token) throw new Error("GITHUB_TOKEN is not set");
   const url = `https://api.github.com/repos/${OWNER}/${REPO}/contents/${encodeURIComponent(FILE_PATH)}`;
@@ -36,9 +73,9 @@ async function commitContent(content: SiteContent): Promise<void> {
   let sha: string | undefined;
   const getRes = await fetch(`${url}?ref=${BRANCH}`, { headers });
   if (getRes.ok) {
-    sha = ((await getRes.json()) as { sha?: string }).sha;
+    sha = ((await getRes.json()) as any).sha;
   } else if (getRes.status !== 404) {
-    throw new Error(`GitHub read failed (${getRes.status}): ${await getRes.text()}`);
+    throw new Error(`GitHub read failed (${getRes.status})`);
   }
 
   const body = {
@@ -69,7 +106,6 @@ export default async function handler(req: any, res: any) {
     return;
   }
 
-  // Login check only — confirms the password and reports whether saving will work.
   if (action === "verify") {
     res.status(200).json({ ok: true, configured: ghConfigured() });
     return;
@@ -81,7 +117,7 @@ export default async function handler(req: any, res: any) {
       return;
     }
     try {
-      const clean = mergeContent(content);
+      const clean = sanitize(content);
       await commitContent(clean);
       res.status(200).json({ ok: true, content: clean });
     } catch (e: any) {
