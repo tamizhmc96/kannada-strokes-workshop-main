@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
 import { DEFAULT_CONTENT, durationLabel, formatDateRange, type Batch, type SiteContent } from "@/lib/content-schema";
@@ -15,6 +16,7 @@ const PW_KEY = "tll_admin_pw";
 function AdminPage() {
   const [phase, setPhase] = useState<"login" | "editor">("login");
   const [password, setPassword] = useState("");
+  const [showPw, setShowPw] = useState(false);
   const [busy, setBusy] = useState(false);
   const [draft, setDraft] = useState<SiteContent>(DEFAULT_CONTENT);
   const [learnText, setLearnText] = useState(DEFAULT_CONTENT.learn.join("\n"));
@@ -110,14 +112,24 @@ function AdminPage() {
             void unlock(password);
           }}
         >
-          <input
-            type="password"
-            autoFocus
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="Password"
-            className={inputCls}
-          />
+          <div className="relative">
+            <input
+              type={showPw ? "text" : "password"}
+              autoFocus
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Password"
+              className={inputCls}
+            />
+            <button
+              type="button"
+              onClick={() => setShowPw((v) => !v)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-foreground/50 hover:text-foreground"
+              tabIndex={-1}
+            >
+              {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
+            </button>
+          </div>
           <button type="submit" disabled={busy || !password} className={btnCls}>
             {busy ? "Checking…" : "Unlock"}
           </button>
