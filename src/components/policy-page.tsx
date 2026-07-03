@@ -3,11 +3,11 @@ import logo from "@/assets/logo.jpg";
 
 export const BUSINESS = {
   brand: "The Lettering Lab",
-  owner: "Tamilarasan",
-  email: "tamizhmc96@gmail.com",
-  phone: "+91 93441 76843",
-  phoneHref: "+919344176843",
-  location: "Chennai, Tamil Nadu, India",
+  owner: "V K Shobitha",
+  email: "Theletteringlab23@gmail.com",
+  phone: "+91 80509 95667",
+  phoneHref: "+918050995667",
+  location: "Bengaluru, Karnataka, India",
 } as const;
 
 const POLICY_LINKS = [
