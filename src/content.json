@@ -1,15 +1,11 @@
 {
-  "title": "12-Day Kannada Calligraphy Workshop",
-  "startDate": "2025-12-25",
-  "endDate": "2026-08-05",
-  "priceInr": 9,
+  "title": "12-Day Online ಕನ್ನಡ ಕ್ಯಾಲಿಗ್ರಫಿ (Kannada Calligraphy Workshop)",
+  "startDate": "2026-07-26",
+  "endDate": "2026-08-08",
+  "priceInr": 2498,
   "tagline": "The Art of Letters",
-  "heroIntro": "Dive into the art of Kannada calligraphy and unlock the beauty of the script like never before. An immersive journey with The Lettering Lab.",
+  "heroIntro": "🎨 Welcome to the Kannada Calligraphy Workshop✍️ Immerse yourself in the art of letters here is a precious opportunity to learn the artistic expression of love for the Kannada script❤️",
   "batches": [
-    {
-      "value": "noon",
-      "label": "Noon Batch · 2:00 PM – 3:00 PM"
-    },
     {
       "value": "evening",
       "label": "Evening Batch · 5:00 PM – 6:00 PM"
@@ -20,10 +16,11 @@
     }
   ],
   "learn": [
-    "Basic Strokes",
-    "ಸ್ವರಗಳು (Swara)",
-    "ವ್ಯಂಜನಗಳು (Vanjanas)",
-    "Word Formation",
-    "Quote Composition"
+    "In this workshop, you will learn:",
+    "👉 Basic strokes",
+    "👉 Vowels (Achchus)",
+    "👉 Consonants",
+    "👉 Word and sentence formation",
+    "📦 All the necessary materials for learning will be sent to your doorstep ✨"
   ]
 }
